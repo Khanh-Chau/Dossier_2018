@@ -4,10 +4,24 @@
 </button>
 
 <ng-template #loadContent id="modal-download" let-c="close" let-d="dismiss">
+  <!-- Rappel: l'attribut #loadContent est une variable locale. 
+    + C' une variable qu'on peut déclarer dynamiquement dans notre template avec la notation #.
+    Cette variale peut être utilisée n'importe où dans le template. 
+    + si je comprends bien, le let-c et let-b c' une manière de déclarer des nouvelles variables dans le template
+    C' pareil si on met let-coco ou let-toto. Il faut bien adapter les contenus par contre. 
+    + Je suppose que, vu qu'on a déclaré NgbModal (qui est un service) dans storeService, on peut utiliser toutes les classes liées?!!? 
+    Ici, pour le close et le dismiss, ça vient de la classe NgbActiveModal, qui est une référence du modal actif (modal actuelement ouvert).
+    Les instances de cette classe peuvent être injectées dans des composants transmis en tant que contenu modal. 
+          -> close(result: any) : utilisé pour fermer un modal
+          -> dismiss(reason: any) : utilisé pour rejeter un modal 
+    Le result est une promesse (promise) qui est résolue lorsqu'un modal est fermé et rejeté lorsqu'un modal est rejeté. 
+      -->
   <div class="modal-header">
     <h5 class="modal-title" id="modalLabel"> Télécharger les données </h5>
     <button type="button" class="close" aria-label="Close" (click)=" d('Cross click')">
       <span aria-hidden="true">&times;</span>
+                     <!-- le &times; est une référence d'entité (entity reference??), ça présente un croix (X)  -->
+
     </button>
   </div>
   <div class="modal-body">
