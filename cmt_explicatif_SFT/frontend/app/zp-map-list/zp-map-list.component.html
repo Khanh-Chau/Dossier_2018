@@ -72,18 +72,15 @@
       [rows]="filteredData"
       [headerHeight]="50"
       [footerHeight]="50"
-      [rowHeight]="'auto'"
+      [rowHeight]="'auto'" 
       [columnMode]="'force'" 
       [selected]="mapListService.selectedRow"
       [selectionType]="'single'"
       (select)="mapListService.onRowSelect($event)"
-      [messages]="message"
       [rowClass]="mapListService.getRowClass"
       [offset]="mapListService.page.pageNumber"
       [limit]="mapListService.page.size"
-      [rowClass]="mapListService.getRowClass"
-      [sortType]="'single'" 
-      (sort)=onSort($event)
+      [messages]="storeService.sftConfig.zp_message"
       >
 <!-- 
     Attention: les [] sont les inputs et () sont les outputs. BINDING = LIAISON 
@@ -125,10 +122,11 @@
 
 
  -->
-         <ngx-datatable-column *ngFor="let col of columns"  [sortable]="true" [name]="col.name" [prop]="col.prop" >
-               
-            
-         </ngx-datatable-column>
+        <ngx-datatable-column *ngFor="let col of storeService.sftConfig.default_zp_columns" 
+        [name]="col.name" [prop]="col.prop" [maxWidth]="col.width">
+<!-- on peut maintenant ajuster le largeur de colonne comme on veut, en ajoutant l'input [width] sur des colonnes -->
+
+        </ngx-datatable-column>
 <!-- Input de ngx-datatable-column:
     [name]: label de colonne. 
     [prop]: propriété à laquelle liée les valeurs de ligne. 
@@ -176,58 +174,22 @@
   
       <div id="end-btn">
       
-            <button type="button" class="btn btn-primary btn-sm box-shadow" id="download-btn"
-            (click)="storeService.openIntesectionModal(loadContent)"> 
-                     <i class="fa fa-download" aria-hidden="true"> </i>
-                     Télécharger ces visites 
-            </button>
-            <!-- Ce bouton a pour but d'ouvrir un modal quand on clique dessus. 
-            Ce modal est appelé grâce à la fonction openIntesectionModal(content) dans storeService 
-            Le content ici c' l'attribut loadContent, qui est déclaré un peu plus bas . 
-            On appelle l'attribut loadContent pour ensuite le passe comme argument à la méthode openIntersectionModal
-        -->
+        <pnx-modal-download [pathDownload]='storeService.urlLoad' 
+        [exportFormat]='storeService.sftConfig.export_available_format'
+        labelButton='Télécharger toutes les visites'>
+        </pnx-modal-download>
+    <!-- On a crée un component propre pour créer un bouton dédié au téléchargement des données dans GeoNature: le pnx-modal-download. 
+Il prend 2 inputs obligatoires:
+    + [pathDownload]: à patir de ce chemin, on peut télécharger les données.
+    + [exportFormat]: sur quel format qu'on veut télécharger (ici on a geojson, csv et shapefile. 
+    Shapefile c' le format par défaut)
+Pour les autres inputs facultatifs, je vais expliquer dans les autres fichiers quand on les voit. 
+
+-->
          
       </div>
 
-      <ng-template #loadContent id="modal-download" let-c="close" let-d="dismiss">
-            <!-- Rappel: l'attribut #loadContent est une variable locale. 
-               + C' une variable qu'on peut déclarer dynamiquement dans notre template avec la notation #.
-               Cette variale peut être utilisée n'importe où dans le template. 
-               + si je comprends bien, le let-c et let-b c' une manière de déclarer des nouvelles variables dans le template
-               C' pareil si on met let-coco ou let-toto. Il faut bien adapter les contenus par contre. 
-               + Je suppose que, vu qu'on a déclaré NgbModal (qui est un service) dans storeService, on peut utiliser toutes les classes liées?!!? 
-               Ici, pour le close et le dismiss, ça vient de la classe NgbActiveModal, qui est une référence du modal actif (modal actuelement ouvert).
-               Les instances de cette classe peuvent être injectées dans des composants transmis en tant que contenu modal. 
-                     -> close(result: any) : utilisé pour fermer un modal
-                     -> dismiss(reason: any) : utilisé pour rejeter un modal 
-               Le result est une promesse (promise) qui est résolue lorsqu'un modal est fermé et rejeté lorsqu'un modal est rejeté. 
-                -->
-
-         <div class="modal-header">
-            <h5 class="modal-title" id="modalLabel"> Télécharger les données </h5>
-            <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
-               <span aria-hidden="true">&times;</span> 
-               <!-- le &times; est une référence d'entité (entity reference??), ça présente un croix (X)  -->
-            </button>
-         </div>
-         
-         <div class="modal-body">
-            <span > <b> Attention: </b> </span> <br>
-            <span> Vous vous apprêtez à télécharger les données de  <b> toutes les visites </b>. </span><br>
-            <br><br><br>
-      
-            <div class="export-btn">
-               <button *ngFor="let format of storeService.exportFormat" class="buttonLoad"
-               (click)="onDownload(format); c()"
-               type="button"
-               class="btn btn-success format-btn">
-               <!--  le c() pour fermer le modal après avoir téléchargé  -->
-                  Format {{format}}
-               </button>
-            </div>
-      
-         </div>
-      </ng-template>
+     
 
    </div>
 

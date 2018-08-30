@@ -105,9 +105,13 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
   }
 
   onSearchDate(event) {
-    let trans = event.toLowerCase();
+    let trans;
+    if (event !== null) {
+      trans = event.toString();
+    }
+
     this.filteredData = this.mapListService.tableData.filter(ligne => {
-      return ligne.date_max.toLowerCase().indexOf(trans) !== -1 || !trans;
+      return ligne.date_max.indexOf(trans) !== -1 || !trans;
     });
   }
 
@@ -137,36 +141,5 @@ export class ZpMapListComponent implements OnInit, AfterViewInit {
       return select;
       //  et on retourne select, quoi que ce soit.
     });
-  }
-
-  onSort(event) {
-    console.log("my event ", event);
-
-    let prop = event.column.prop;
-
-    this.filteredData = this.mapListService.tableData.sort((a, b) => {
-      return (
-        a[prop]
-          .toString()
-          .localeCompare(b[prop].toString(), undefined, { numeric: true }) *
-        (event.newValue === "desc" ? -1 : 1)
-      );
-      // la méthode sort trie les éléments d'un tableau mais elle n'est pas stable car le tri s'effectue par défaut selon les points de code Unicode
-      // je dois donc appliquer une fonction de comparaison ici.
-    });
-  }
-
-  onDownload(format) {
-    // const param = {
-    //   export_format: format
-
-    // }
-    // this._api.downloadData(param).subscribe();
-
-    const url = `${AppConfig.API_ENDPOINT}${
-      ModuleConfig.api_url
-    }/export_visit?export_format=${format}`;
-
-    document.location.href = url;
   }
 }
