@@ -1,0 +1,242 @@
+<div class="row row-0">
+   <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm">
+      <pnx-map
+         height="95vh"
+         [center]= "[44.982667966765845, 6.062455200884894]"
+         [zoom]="12">
+            <pnx-geojson [onEachFeature]="onEachFeature.bind(this)" [geojson]="zps">
+            </pnx-geojson>
+      </pnx-map>
+   </div>
+
+   
+
+
+
+   <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 padding-sm tab-container ">
+      <h3> Zones de prospection</h3>
+      
+     
+      <div id="blocSearch" class="row row-0 "> 
+         <div class="searchZP"> 
+               <small> Rechercher selon taxon </small>
+               <input 
+               [ngModel]="searchTaxon" (ngModelChange)="onSearchTaxon($event)" class="inputSearch" >
+         </div>
+         <!-- le ngModel est une directive permet de faire le Data Binding sur les éléments du formulaires de type Input et textarea
+            Cette directive crée une instance de FormControl. 
+            Elle met à jour la valeur de l'input à chaque chagement du modèle.
+            J'ai créé exprès un @Input searchTaxon pour bien illustrer, mais ça sert à pas grand chose ici.
+            Par contre, si, imagine, ya un <span> Vous venez de taper : {{searchTaxon }} </span>
+            Et puis dans on a <input [(ngModel)]="searchTaxon">, quand on tape qqc dans cet input, ça va mettre à jour le {{searchTaxon}}, 
+            d'où l'intérêt du [ngModel] et le @Input. 
+
+         -->
+
+         <!-- RAPPEL DE CONNAISSANCE
+            + Un champ de formulaire, comme input ou select, est représenté par un FormControl en Angular.
+            C' la plus petite partie d'un formulaire, il encapsule l'état du champ et sa valeur. 
+
+         -->
+         <div class="searchZP"> 
+               <small> Rechercher selon l'année </small>
+               <input [ngModel]="searchDate" (ngModelChange)="onSearchDate($event)" class="inputSearch" >
+         </div>
+
+         <div class="searchZP"> 
+               <small> Rechercher selon l'organisme </small>
+               <select class="form-control form-control-sm" id="monSelect"
+               [ngModel]="searchOrga" (ngModelChange)="onSearchOrganisme($event)">
+               <!-- il faut rajouter le ngModel pour pouvoir utiliser le ngValue -->
+                    <option [ngValue]="null" > -- Sélectionnez un filtre -- </option>
+                    <!-- le value ou ngValue représente la valeur qu'on souhaite envoyer au formulaire lorsque l'option est sélectionnée 
+                  Si la valeur d'option est de type string -> utilise value, si elle est de type objet -> utilise ngValue -->
+                    <option *ngFor="let label of tabOrganism"> {{label}} </option> 
+                    <!-- Si cet attribut n'est pas définie (comme ici), la valeur sera le contenu textuel de l'élément <option> 
+                       ça veut dire {{label}} -->
+
+                    <option> test 1 </option>
+                    <option> test 2 </option>
+                    
+              </select>
+                
+
+         </div>
+
+      </div>
+ 
+
+      <ngx-datatable
+      #table
+      class="material"
+      [rows]="filteredData"
+      [headerHeight]="50"
+      [footerHeight]="50"
+      [rowHeight]="'auto'"
+      [columnMode]="'force'" 
+      [selected]="mapListService.selectedRow"
+      [selectionType]="'single'"
+      (select)="mapListService.onRowSelect($event)"
+      [messages]="message"
+      [rowClass]="mapListService.getRowClass"
+      [offset]="mapListService.page.pageNumber"
+      [limit]="mapListService.page.size"
+      [rowClass]="mapListService.getRowClass"
+      [sortType]="'single'" 
+      (sort)=onSort($event)
+      >
+<!-- 
+    Attention: les [] sont les inputs et () sont les outputs. BINDING = LIAISON 
+    Rappeler: Le Data Binding permet de synchroniser la vue au modèle JavaScript. 
+    Le Data Binding contient 4 formes: l'interpolation {{}}, Property Binding [], Event Binding () et two- way Data Binding [()]
+    C' ad permet de lier ce fichier html et le fichier ts correspondant.
+    -> Les [] sont les Property Binding. 
+    On peut modifier dynamiquement les propriétés d'un élément du DOM en fonction de données dans TypeScript. 
+    -> Les () sont les Event Binding. Le () pour créer une liaison à un événement. 
+    Il permet d'exécuter une fonction écrité dans le fichier ts suite à un événement émis sur le DOM (le html )
+         ***La propriété $event: quand on a besoin de données suppémentaires d'un événement (quelle touche est pressée par ex).
+         Elle transmet l'intégralité de la charge d'information de l'évenement au gestionnaire d'événement du composant
+         (cad la fonction correspondante écrite dans le fichier ts ). Le paramètre $event est donc transmis aux méthodes. 
+         Ce $ est présenté devant event dans l'appel de la méthode et pas dans la définition. 
+         ***
+    + [rows]: on fait sur filteredData et pas sur mapListService.tableData comme au début, pour pouvoir filtrer les résultats. 
+    + [selected] : quand on clique sur la ZP, ça souligne la ligne correspondante dans ngx-datatable.
+    Comme on précisé un peu plus haut, c' le Property Binding. 
+    Effectivement, on modifie ngx-datatable en 'modifiant' les rows de mapListService (donc les données dans TypeScript). 
+    En fait, c' grâce à cette fonction:             
+      this.mapListService.mapSelected.next(feature.id);
+      C' parce que quand on clique sur une ZP, ça modifie les données de ce code dessus (ça modifie le mapSelected de mapListService)
+      -> donc en modifiant les données dans TypeScript -> modifie dinamiquement le DOM (ngx datatable) -> Property Binding    
+
+
+    + [selectionType] : mode de sélection pour les lignes: single = une ligne est sélectionné à la fois. 
+    + (select): output, quand une ligne ou une cellule est sélectionnée, ça va marqué en rouge la ZP. 
+    C' le Event Binding. Effectivement, quand on clique sur la ligne, on crée un événement. 
+    Elle appelle donc la fonction mapListService.onRowSelect($event) ($event ici, c' la ligne cliquée).
+    + [messages ]: les messages qu'on veut afficher dans ngx datatable 
+    + [rowClass] : fonction utilisée pour remplir les classes CSS d'une ligne.
+    Cette fonction prendra une ligne et retournera une chaîne ou un objet, ici c' 'clickable',
+    ce qui permet d'afficher la main avec le doigt... Attenion! Même si c' une fonction, ya pas les parenthèses après getRowClass(). 
+    + [sortType] :  En mode "simple", cliquer sur un nom de colonne réinitialisera le tri existant avant le tri selon la nouvelle sélection. 
+    En mode de sélection multiple, des clics supplémentaires sur les noms de colonne ajoutent un tri à l'aide de plusieurs colonnes.
+    ATTENTION: le 'single' doit bien mettre dans le '', ça donne "'single'" !!!!!!!!!!!
+    + (sort): la fonction pour trier les colonnes a été appelée. 
+
+
+
+ -->
+         <ngx-datatable-column *ngFor="let col of columns"  [sortable]="true" [name]="col.name" [prop]="col.prop" >
+               
+            
+         </ngx-datatable-column>
+<!-- Input de ngx-datatable-column:
+    [name]: label de colonne. 
+    [prop]: propriété à laquelle liée les valeurs de ligne. 
+ -->
+
+         <!-- <ngx-datatable-column name="Identifiant" maxWidth="85" >
+            <ng-template  let-row="row" ngx-datatable-cell-template  >
+                {{row.id_base_site}}
+            </ng-template>
+         </ngx-datatable-column> 
+
+         <ngx-datatable-column name="Taxon" maxWidth="350">
+            <ng-template  let-row="row" ngx-datatable-cell-template  >
+                {{row.nom_taxon}}
+            </ng-template>
+         </ngx-datatable-column>
+         
+         <ngx-datatable-column name="Nombre de visites" maxWidth="120">
+            <ng-template  let-row="row" ngx-datatable-cell-template  >
+                {{row.base_site.t_base_visits.length}}
+            </ng-template>
+         </ngx-datatable-column>
+
+         <ngx-datatable-column name="Date de la dernière visite" maxWidth="160" >
+            <ng-template  let-row="row" ngx-datatable-cell-template >
+                {{row.date_max}}
+            </ng-template>
+         </ngx-datatable-column>
+
+         <ngx-datatable-column name="Organisme" maxWidth="190" >
+            <ng-template  let-row="row" ngx-datatable-cell-template >
+                {{row.nom_organisme}}
+            </ng-template>
+         </ngx-datatable-column> -->
+
+         <ngx-datatable-column maxWidth="90">
+            <ng-template  let-row="row" ngx-datatable-cell-template>
+               <button type="button" class="btn btn-info fa fa-eye" (click)="onInfo(row.id_base_site)" title="Visualiser">
+               </button>
+            </ng-template>
+         </ngx-datatable-column> 
+       
+         
+      </ngx-datatable>
+  
+      <div id="end-btn">
+      
+            <button type="button" class="btn btn-primary btn-sm box-shadow" id="download-btn"
+            (click)="storeService.openIntesectionModal(loadContent)"> 
+                     <i class="fa fa-download" aria-hidden="true"> </i>
+                     Télécharger ces visites 
+            </button>
+            <!-- Ce bouton a pour but d'ouvrir un modal quand on clique dessus. 
+            Ce modal est appelé grâce à la fonction openIntesectionModal(content) dans storeService 
+            Le content ici c' l'attribut loadContent, qui est déclaré un peu plus bas . 
+            On appelle l'attribut loadContent pour ensuite le passe comme argument à la méthode openIntersectionModal
+        -->
+         
+      </div>
+
+      <ng-template #loadContent id="modal-download" let-c="close" let-d="dismiss">
+            <!-- Rappel: l'attribut #loadContent est une variable locale. 
+               + C' une variable qu'on peut déclarer dynamiquement dans notre template avec la notation #.
+               Cette variale peut être utilisée n'importe où dans le template. 
+               + si je comprends bien, le let-c et let-b c' une manière de déclarer des nouvelles variables dans le template
+               C' pareil si on met let-coco ou let-toto. Il faut bien adapter les contenus par contre. 
+               + Je suppose que, vu qu'on a déclaré NgbModal (qui est un service) dans storeService, on peut utiliser toutes les classes liées?!!? 
+               Ici, pour le close et le dismiss, ça vient de la classe NgbActiveModal, qui est une référence du modal actif (modal actuelement ouvert).
+               Les instances de cette classe peuvent être injectées dans des composants transmis en tant que contenu modal. 
+                     -> close(result: any) : utilisé pour fermer un modal
+                     -> dismiss(reason: any) : utilisé pour rejeter un modal 
+               Le result est une promesse (promise) qui est résolue lorsqu'un modal est fermé et rejeté lorsqu'un modal est rejeté. 
+                -->
+
+         <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel"> Télécharger les données </h5>
+            <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+               <span aria-hidden="true">&times;</span> 
+               <!-- le &times; est une référence d'entité (entity reference??), ça présente un croix (X)  -->
+            </button>
+         </div>
+         
+         <div class="modal-body">
+            <span > <b> Attention: </b> </span> <br>
+            <span> Vous vous apprêtez à télécharger les données de  <b> toutes les visites </b>. </span><br>
+            <br><br><br>
+      
+            <div class="export-btn">
+               <button *ngFor="let format of storeService.exportFormat" class="buttonLoad"
+               (click)="onDownload(format); c()"
+               type="button"
+               class="btn btn-success format-btn">
+               <!--  le c() pour fermer le modal après avoir téléchargé  -->
+                  Format {{format}}
+               </button>
+            </div>
+      
+         </div>
+      </ng-template>
+
+   </div>
+
+</div>
+
+
+
+
+
+
+
+

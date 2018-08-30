@@ -1,0 +1,86 @@
+.ngx-datatable.material {
+    max-height: 79vh!important;
+    box-shadow: none!important;
+    overflow-y: scroll;
+}
+
+// #blocSearch {
+//     display: flex; 
+//     justify-content: space-between
+// }
+.inputSearch {
+    width:120%;
+    height: 30px;
+
+    // background-color: transparent; 
+    border:none; 
+
+
+ 
+    // border-bottom: 1px #181818 
+}
+
+.searchZP {
+    margin-right: 100px; 
+
+}
+
+
+
+:host /deep/ .single-selection .datatable-body-row.active  .datatable-row-group {
+  /* - le :host
+    On utilise le sélecteur de pseudo-classe: host pour cibler des styles dans l'élément qui héberge 
+    le composant (c'ad ici on uilise pour cibler l'élément qui se trouve dans ngx datatable)
+    Le sélecteur: host est le seul moyen de cibler l'élément hôte (=ngx datatable).
+    On ne peut pas accéder à l'élément hôte depuis le composant avec d'autres sélecteurs 
+    car il ne fait pas partie du modèle propre au composant. 
+    L'élément hôte se trouve dans le modèle d'un composant parent.
+ */
+
+/*
+    - le /deep/ :(ou on peut utiliser ::ng-deep c' pareil. 
+    Cependant, Jusque-là le ::ng-deep devrait être préféré pour une compatibilité plus large avec les outils)
+    Les styles de composants ne s'appliquent normalement qu'au code HTML dans le propre modèle du composant.
+    On utilise le combinateur descendant / deep / pour forcer un style à travers l'arborescence des composants enfants 
+    dans toutes les vues des composants enfants (ici c' le datatable-row-group dans .datatable-body-row.active dans .single-selection). 
+    Le / deep / combinator fonctionne à n'importe quelle profondeur de composants imbriqués, 
+    et s'applique à la fois aux enfants de vue et aux enfants de contenu du composant.
+
+
+*/
+    background-color: rgb(154, 217, 247) !important;
+    // le !important dispose le super pouvoir de passer outre les poids et spécificités des séleteurs 
+    // (même si supérieur à la sienne) pour imposer le sien :P. 
+  
+
+
+   }
+
+
+.searchZP {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    
+}
+
+.box-shadow {
+    box-shadow: 4px 5px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
+
+#end-btn {
+    margin-top: 15px;
+    margin-bottom: 30px
+}
+
+.format-btn {
+    margin-left: 5px;
+}
+
+.export-btn {
+
+    display: block;
+    margin: auto 
+   
+  }
+
